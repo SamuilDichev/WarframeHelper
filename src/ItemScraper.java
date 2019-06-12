@@ -136,6 +136,9 @@ public class ItemScraper {
     }
   }
 
+  /**
+   * Scrapes the item URL for all items and saves them to DB while reusing the ObjectIds from the URL data.
+   */
   public void updateItemDB() {
     Future<Response> whenResponse = client.prepareGet(ITEMS_URL).execute();
 
@@ -165,6 +168,13 @@ public class ItemScraper {
     }
   }
 
+  /**
+   * Scrapes specific item's URL for ducats and relic drop locations. Add them to the model and saves to DB.
+   *
+   * @param item
+   * @return
+   * @throws Exception
+   */
   private Item addDetails(Item item) throws Exception {
     Future<Response> whenResponse = client.prepareGet(ITEMS_URL + "/" + item.getUrl_name()).execute();
 
