@@ -82,7 +82,7 @@ public final class JsonHelper {
    * Takes JSON as a String and maps (using the Jackson ObjectMapper) the JSON to an Object of the
    * desired type.
    *
-   * @param json: the JSON in String form
+   * @param json:   the JSON in String form
    * @param asType: a Class representing the type of object to be returned.
    * @return an Object of type asType, or null on failure.
    */

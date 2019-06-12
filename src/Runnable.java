@@ -6,7 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.MongoHelper;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
 /**
  * @author Samuil Dichev
@@ -16,26 +19,31 @@ public class Runnable {
   private static final String DEALS_STRING = "%.1f dpp (%dp/%dd) - %s (%s) - %s %dp";
 
   public static void main(String[] args) throws Exception {
-    Scanner in = new  Scanner(System.in);
+    Scanner in = new Scanner(System.in);
     System.out.println("Choose an option:\n" +
             "1. Find Ducat deals\n" +
             "2. Find Relic deals\n" +
             "3. Update In-game Items\n" +
             "4. Update Relics");
     System.out.print("Your choice: ");
-    int option = in.nextInt();
 
+    int option = in.nextInt();
     switch (option) {
-      case 1: findDppDeals();
-      break;
-      case 2: findRelicDeals();
-      break;
-      case 3: updateItemDB();
-      break;
-      case 4: updateRelics();
-      break;
-      default: findDppDeals();
-      break;
+      case 1:
+        findDppDeals();
+        break;
+      case 2:
+        findRelicDeals();
+        break;
+      case 3:
+        updateItemDB();
+        break;
+      case 4:
+        updateRelics();
+        break;
+      default:
+        findDppDeals();
+        break;
     }
   }
 
