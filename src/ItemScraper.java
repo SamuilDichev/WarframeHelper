@@ -2,12 +2,16 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mongodb.Mongo;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 import models.*;
 import models.Web.RelicWeb;
 import models.Web.RewardWeb;
+import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.query.Query;
+import org.mongodb.morphia.query.UpdateOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.JsonHelper;
@@ -118,18 +122,34 @@ public class ItemScraper {
         relic.setStatus(Status.UNVAULTED);
       }
 
+      relic.setDrops(new ArrayList<>());
+
       // Search for Relic's drops in the Item DB and add them to its drop list if they exist already, otherwise skip
       for (RewardWeb reward : unfilteredRelic.getRewards()) {
-        Item dbitem = ds.find(Item.class).field("item_name").equal(reward.getItemName()).get();
-        if (dbitem != null && !relic.getDrops().contains(dbitem.getId())) {
-          relic.getDrops().add(dbitem.getId());
+        Query<Item> itemQuery = ds.find(Item.class);
+        itemQuery.or(
+                itemQuery.criteria("item_name").equal(reward.getItemName()),
+                itemQuery.criteria("item_name").equal(reward.getItemName().replace(" Blueprint", ""))
+        );
+
+        Item dbItem = itemQuery.get();
+        if (dbItem != null) {
+          relic.getDrops().add(dbItem.getId());
+        } else if ("Forma Blueprint".equals(reward.getItemName())) {
+          Item forma = new Item();
+          forma.setItem_name("Forma Blueprint");
+          forma.setDucats(0);
+          forma.setPlatinum(0);
+          ds.save(forma);
+
+          relic.getDrops().add(forma.getId());
         }
       }
 
       ds.save(relic);
 
       // Log every X lines
-      if (i % 10 == 0 && i > 0) {
+      if (i % 100 == 0 && i > 0) {
         LOGGER.info("Saved {}/{} relics.", i, unfilteredRelics.size());
         System.out.println("Saved " + i + "/" + unfilteredRelics.size() + " relics.");
       }
@@ -152,9 +172,10 @@ public class ItemScraper {
 
       });
 
+      Datastore ds = MongoHelper.getInstance().getDatastore();
       for (int i = 0; i < items.size(); i++) {
         Item item = addDetails(items.get(i));
-        MongoHelper.getInstance().getDatastore().save(item);
+        ds.save(item);
 
         if (i % 100 == 0 && i > 0) {
           LOGGER.info("Saved {}/{} items.", i, items.size());
@@ -162,10 +183,28 @@ public class ItemScraper {
         }
       }
 
+      updateMismatchingNames();
+
     } catch (Exception e) {
       LOGGER.error("Ops", e);
       e.printStackTrace();
     }
+  }
+
+  private void updateMismatchingNames() {
+    Datastore ds = MongoHelper.getInstance().getDatastore();
+
+    Query<Item> query = ds.createQuery(Item.class).field("item_name").equal("Kavasa Prime Collar Blueprint");
+    UpdateOperations<Item> ops = ds.createUpdateOperations(Item.class).set("item_name", "Kavasa Prime Kubrow Collar Blueprint");
+    ds.update(query, ops);
+
+    query = ds.createQuery(Item.class).field("item_name").equal("Kavasa Prime Collar Buckle");
+    ops = ds.createUpdateOperations(Item.class).set("item_name", "Kavasa Prime Buckle");
+    ds.update(query, ops);
+
+    query = ds.createQuery(Item.class).field("item_name").equal("Kavasa Prime Collar Band");
+    ops = ds.createUpdateOperations(Item.class).set("item_name", "Kavasa Prime Band");
+    ds.update(query, ops);
   }
 
   /**
