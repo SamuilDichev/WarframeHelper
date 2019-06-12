@@ -104,15 +104,11 @@ public class Runnable {
       ds.save(relic);
     }
 
-    List<RelicDB> updatedRelics = ds.find(RelicDB.class).order("tier,-maxDropPlatinum,name").asList();
+    List<RelicDB> updatedRelics = ds.find(RelicDB.class).order("-averageDropPlatinum,tier,name").asList();
     for (RelicDB relic : updatedRelics) {
-      if (relic.getMaxDropPlatinum() < 20) {
-        continue;
-      }
-
       System.out.println(relic.getTier() + " " + relic.getName() + "(" + relic.getStatus() +
               ") - Min: " + relic.getMinDropPlatinum() + ", max: " + relic.getMaxDropPlatinum() +
-              ", total: " + relic.getTotalDropPlatinum());
+              ", average: " + relic.getAverageDropPlatinum());
     }
   }
 
