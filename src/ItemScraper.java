@@ -111,18 +111,7 @@ public class ItemScraper {
         continue;
       }
 
-      RelicDB relic = ds.find(RelicDB.class)
-              .field("tier").equal(unfilteredRelic.getTier())
-              .field("name").equal(unfilteredRelic.getRelicName()).get();
-
-      if (relic == null) {
-        relic = new RelicDB();
-        relic.setTier(unfilteredRelic.getTier());
-        relic.setName(unfilteredRelic.getRelicName());
-        relic.setStatus(Status.UNVAULTED);
-      }
-
-      relic.setDrops(new ArrayList<>());
+      RelicDB relic = getOrCreateRelic(unfilteredRelic.getTier(), unfilteredRelic.getRelicName());
 
       // Search for Relic's drops in the Item DB and add them to its drop list if they exist already, otherwise skip
       for (RewardWeb reward : unfilteredRelic.getRewards()) {
@@ -154,6 +143,23 @@ public class ItemScraper {
         System.out.println("Saved " + i + "/" + unfilteredRelics.size() + " relics.");
       }
     }
+  }
+
+  private RelicDB getOrCreateRelic(String tier, String name) {
+    RelicDB relic = MongoHelper.getInstance().getDatastore().find(RelicDB.class)
+            .field("tier").equal(tier)
+            .field("name").equal(name).get();
+
+    if (relic == null) {
+      relic = new RelicDB();
+      relic.setTier(tier);
+      relic.setName(name);
+      relic.setStatus(Status.UNVAULTED);
+    }
+
+    relic.setDrops(new ArrayList<>());
+
+    return relic;
   }
 
   /**
