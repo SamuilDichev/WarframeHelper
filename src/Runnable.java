@@ -18,11 +18,10 @@ public class Runnable {
   public static void main(String[] args) throws Exception {
     Scanner in = new  Scanner(System.in);
     System.out.println("Choose an option:\n" +
-            "1. Find Ducat Per Platinum deals\n" +
+            "1. Find Ducat deals\n" +
             "2. Find Relic deals\n" +
-            "3. Update Void Relics\n" +
-            "4. Update Vaulted Relics\n" +
-            "5. Update Item Database");
+            "3. Update In-game Items\n" +
+            "4. Update Relics");
     System.out.print("Your choice: ");
     int option = in.nextInt();
 
@@ -33,9 +32,7 @@ public class Runnable {
       break;
       case 3: updateItemDB();
       break;
-      case 4: updateVaultedRelics();
-      break;
-      case 5: updateVoidRelics();
+      case 4: updateRelics();
       break;
       default: findDppDeals();
       break;
@@ -108,14 +105,9 @@ public class Runnable {
     }
   }
 
-  private static void updateVaultedRelics() throws Exception {
+  private static void updateRelics() throws Exception {
     ItemScraper scraper = new ItemScraper();
-    scraper.updateVaultedRelics();
-  }
-
-  private static void updateVoidRelics() {
-    ItemScraper scraper = new ItemScraper();
-    scraper.updateRelicInfo();
+    scraper.updateRelics();
   }
 
   private static void updateItemDB() {

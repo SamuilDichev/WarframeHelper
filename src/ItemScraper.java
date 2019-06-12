@@ -87,7 +87,7 @@ public class ItemScraper {
    *
    * @throws Exception
    */
-  public void updateVaultedRelics() throws Exception {
+  public void updateRelics() throws Exception {
     Future<Response> whenResponse = client.prepareGet(RELICS_URL).execute();
     Response response = whenResponse.get();
     ObjectNode jsonBodyNode = new ObjectMapper().readValue(response.getResponseBody(), ObjectNode.class);
@@ -132,47 +132,6 @@ public class ItemScraper {
       if (i % 10 == 0 && i > 0) {
         LOGGER.info("Saved {}/{} relics.", i, unfilteredRelics.size());
         System.out.println("Saved " + i + "/" + unfilteredRelics.size() + " relics.");
-      }
-    }
-  }
-
-  public void updateRelicInfo() {
-    Datastore ds = MongoHelper.getInstance().getDatastore();
-    List<Item> items = ds.find(Item.class).field("ducats").greaterThan(0).asList();
-
-    for (int i = 0; i < items.size(); i++) {
-      Item item = items.get(i);
-      List<String> drops = item.getDrops();
-
-      if (drops == null) {
-        continue;
-      }
-
-      for (String drop : drops) {
-        if (drop.contains("Lith") || drop.contains("Meso") || drop.contains("Neo") || drop.contains("Axi")) {
-          String[] dropSplit = drop.split("\\s+");
-          String tier = dropSplit[0];
-          String name = dropSplit[1];
-          RelicDB relic = ds.find(RelicDB.class).field("tier").equal(tier).field("name").equal(name).get();
-
-          if (relic == null) {
-            relic = new RelicDB();
-            relic.setTier(tier);
-            relic.setName(name);
-            relic.setStatus(Status.UNVAULTED);
-          }
-
-          if (!relic.getDrops().contains(item.getId())) {
-            relic.getDrops().add(item.getId());
-          }
-
-          ds.save(relic);
-
-          if (i % 100 == 0 && i > 0) {
-            LOGGER.info("Saved {}/{} items.", i, items.size());
-            System.out.println("Saved " + i + "/" + items.size() + " items.");
-          }
-        }
       }
     }
   }
