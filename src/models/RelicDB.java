@@ -26,6 +26,7 @@ public class RelicDB {
   private List<ObjectId> drops = new ArrayList<>();
   private double minDropPlatinum;
   private double maxDropPlatinum;
+  private double averageDropPlatinum;
   private double totalDropPlatinum;
 
   public ObjectId getId() {
@@ -86,6 +87,14 @@ public class RelicDB {
 
   public void setMaxDropPlatinum(double maxDropPlatinum) {
     this.maxDropPlatinum = maxDropPlatinum;
+  }
+
+  public double getAverageDropPlatinum() {
+    return averageDropPlatinum;
+  }
+
+  public void setAverageDropPlatinum(double averageDropPlatinum) {
+    this.averageDropPlatinum = averageDropPlatinum;
   }
 
   public double getTotalDropPlatinum() {

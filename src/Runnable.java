@@ -6,10 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.MongoHelper;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * @author Samuil Dichev
@@ -98,6 +95,12 @@ public class Runnable {
       relic.setMinDropPlatinum(items.get(0).getPlatinum());
       relic.setMaxDropPlatinum(items.get(items.size() - 1).getPlatinum());
       relic.setTotalDropPlatinum(items.stream().mapToDouble(Item::getPlatinum).sum());
+
+      OptionalDouble optionalAverage = items.stream().mapToDouble(Item::getPlatinum).average();
+      if (optionalAverage.isPresent()) {
+        relic.setAverageDropPlatinum(optionalAverage.getAsDouble());
+      }
+
       ds.save(relic);
     }
 
