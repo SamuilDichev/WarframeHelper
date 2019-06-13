@@ -89,17 +89,19 @@ public class Runnable {
     Datastore ds = MongoHelper.getInstance().getDatastore();
     List<RelicDB> relics = ds.find(RelicDB.class).asList();
     for (RelicDB relic : relics) {
-      List<Item> items = ds.find(Item.class).field("_id").hasAnyOf(relic.getDrops()).asList();
+      List<Item> items = ds.find(Item.class).field("_id").hasAnyOf(relic.getDrops().keySet()).asList();
       Comparator<Item> comparator = Comparator.comparing(Item::getPlatinum);
       items.sort(comparator);
       relic.setMinDropPlatinum(items.get(0).getPlatinum());
       relic.setMaxDropPlatinum(items.get(items.size() - 1).getPlatinum());
       relic.setTotalDropPlatinum(items.stream().mapToDouble(Item::getPlatinum).sum());
 
-      OptionalDouble optionalAverage = items.stream().mapToDouble(Item::getPlatinum).average();
-      if (optionalAverage.isPresent()) {
-        relic.setAverageDropPlatinum(optionalAverage.getAsDouble());
+      double averageDropValue = 0.0;
+      for (Item item : items) {
+        averageDropValue += relic.getDrops().get(item.getId()) / 100 * item.getPlatinum();
       }
+
+      relic.setAverageDropPlatinum(averageDropValue);
 
       ds.save(relic);
     }

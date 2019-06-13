@@ -2,13 +2,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.mongodb.Mongo;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 import models.*;
 import models.Web.RelicWeb;
 import models.Web.RewardWeb;
-import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
@@ -123,7 +121,7 @@ public class ItemScraper {
 
         Item dbItem = itemQuery.get();
         if (dbItem != null) {
-          relic.getDrops().add(dbItem.getId());
+          relic.getDrops().compute(dbItem.getId(), (k, v) -> (v == null) ? reward.getChance() : v + reward.getChance());
         } else if ("Forma Blueprint".equals(reward.getItemName())) {
           Item forma = new Item();
           forma.setItem_name("Forma Blueprint");
@@ -131,7 +129,7 @@ public class ItemScraper {
           forma.setPlatinum(0);
           ds.save(forma);
 
-          relic.getDrops().add(forma.getId());
+          relic.getDrops().compute(forma.getId(), (k, v) -> (v == null) ? reward.getChance() : v + reward.getChance());
         }
       }
 
@@ -157,7 +155,7 @@ public class ItemScraper {
       relic.setStatus(Status.UNVAULTED);
     }
 
-    relic.setDrops(new ArrayList<>());
+    relic.setDropsMap(new HashMap<>());
 
     return relic;
   }

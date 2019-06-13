@@ -5,8 +5,8 @@ import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 import org.mongodb.morphia.annotations.Indexed;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Samuil Dichev
@@ -23,7 +23,7 @@ public class RelicDB {
   @Indexed
   private String name;
   private Status status;
-  private List<ObjectId> drops = new ArrayList<>();
+  private Map<ObjectId, Double> drops = new HashMap<>();
   private double minDropPlatinum;
   private double maxDropPlatinum;
   private double averageDropPlatinum;
@@ -65,11 +65,11 @@ public class RelicDB {
     this.status = status;
   }
 
-  public List<ObjectId> getDrops() {
+  public Map<ObjectId, Double> getDrops() {
     return drops;
   }
 
-  public void setDrops(List<ObjectId> drops) {
+  public void setDropsMap(Map<ObjectId, Double> drops) {
     this.drops = drops;
   }
 
