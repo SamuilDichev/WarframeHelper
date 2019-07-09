@@ -1,3 +1,5 @@
+package core;
+
 import models.Deal;
 import models.Item;
 import models.RelicDB;

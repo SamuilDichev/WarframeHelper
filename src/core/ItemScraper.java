@@ -1,3 +1,5 @@
+package core;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +27,8 @@ import java.util.stream.Collectors;
 public class ItemScraper {
   private static final Logger LOGGER = LoggerFactory.getLogger(ItemScraper.class);
   private static final String ITEMS_URL = "https://api.warframe.market/v1/items";
+
+  // TODO Change relics to be taken directly from warframe's drop tables. These guys don't update relics for days.
   private static final String RELICS_URL = "https://drops.warframestat.us/data/relics.json";
   private static final double MIN_RATIO = 15.0;
   private AsyncHttpClient client;
@@ -36,7 +40,7 @@ public class ItemScraper {
   public Map<String, List<Deal>> findDucatDeals() throws Exception {
     Datastore ds = MongoHelper.getInstance().getDatastore();
     List<Item> ducatItems = ds.find(Item.class).field("ducats").greaterThan(0).asList();
-    Map<String, List<Deal>> userDeals = new HashMap<>();
+    Map<String, List<models.Deal>> userDeals = new HashMap<>();
 
     for (Item item : ducatItems) {
       Future<Response> whenResponse = client.prepareGet(ITEMS_URL + "/" + item.getUrl_name() + "/orders").execute();
@@ -171,7 +175,7 @@ public class ItemScraper {
       String jsonBody = response.getResponseBody();
 
       ObjectNode node = new ObjectMapper().readValue(jsonBody, ObjectNode.class);
-      String itemList = node.path("payload").path("items").get("en").toString();
+      String itemList = node.path("payload").get("items").toString();
       List<Item> items = JsonHelper.fromJson(itemList, new TypeReference<List<Item>>() {
 
       });
@@ -188,7 +192,6 @@ public class ItemScraper {
       }
 
       updateMismatchingNames();
-
     } catch (Exception e) {
       LOGGER.error("Ops", e);
       e.printStackTrace();
